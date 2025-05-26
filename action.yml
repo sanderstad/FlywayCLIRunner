@@ -61,6 +61,7 @@ runs:
         if command -v flyway &> /dev/null; then
           echo "Flyway is already installed"
           echo "flyway_installed=true" >> $GITHUB_ENV
+          echo "flyway.installed=true" >> $env:GITHUB_ENV
         else
           echo "Flyway is not installed"
           exit 1
@@ -73,6 +74,7 @@ runs:
         if (Get-Command flyway -ErrorAction SilentlyContinue) {
           Write-Host "Flyway is already installed"
           "flyway_installed=true" >> $env:GITHUB_ENV
+          "flyway.installed=true" >> $env:GITHUB_ENV
         } else {
           Write-Host "Flyway is not installed"
           exit 1
@@ -99,13 +101,14 @@ runs:
       if: ${{ inputs.generate_report }} == 'true' && success() }}
       shell: pwsh
       run: |
+        Write-Host "Creating check report"
         $targetDbUsername = "${{ inputs.target_db_username }}"
         $targetDbPassword = "${{ inputs.target_db_password }}"
         $targetDbUrl = "${{ inputs.target_db_url }}"
         $customParams = "${{ inputs.custom_params }}"
         $environment = "${{ inputs.environment }}"
 
-        flyway check -dryrun -changes -drift -environment="$environment" -user=$targetDbUsername -password=$targetDbPassword -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" "-check.buildEnvironment=$environment" "-environments.${{ env.REPORT_ENVIRONMENT }}.user=${{ env.REPORT_DATABASE_USERNAME }}" "-environments.${{ env.REPORT_ENVIRONMENT }}.password=${{ env.REPORT_DATABASE_PASSWORD }}" "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ env.ENVIRONMENT }}-Check-Report.html" "-publishResult=${{ env.FLYWAY_PUBLISH_RESULT }}" "-flywayServicePublish.publishReport=${{ env.FLYWAY_PUBLISH_RESULT }}" "-reportEnabled=${{ env.FLYWAY_PUBLISH_RESULT }}" ${{ env.CUSTOM_PARAMS }}
+        flyway check -dryrun -changes -drift -environment="$environment" -installedBy="ci-pipeline" -user=$targetDbUsername -password=$targetDbPassword -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" "-check.buildEnvironment=$environment" "-environments.${{ env.REPORT_ENVIRONMENT }}.user=${{ env.REPORT_DATABASE_USERNAME }}" "-environments.${{ env.REPORT_ENVIRONMENT }}.password=${{ env.REPORT_DATABASE_PASSWORD }}" "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ env.ENVIRONMENT }}-Check-Report.html" "-publishResult=${{ env.FLYWAY_PUBLISH_RESULT }}" "-flywayServicePublish.publishReport=${{ env.FLYWAY_PUBLISH_RESULT }}" "-reportEnabled=${{ env.FLYWAY_PUBLISH_RESULT }}" ${{ env.CUSTOM_PARAMS }}
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to create the check report"
           exit 1
@@ -116,6 +119,7 @@ runs:
     - name: Clean DB Build
       shell: pwsh
       run: |
+        Write-Host "Cleaning database build"
         $targetDbUsername = "${{ inputs.target_db_username }}"
         $targetDbPassword = "${{ inputs.target_db_password }}"
         $targetDbUrl = "${{ inputs.target_db_url }}"
@@ -133,6 +137,7 @@ runs:
     - name: Migrate DB Build
       shell: pwsh
       run: |
+        Write-Host "Migrating database build"
         $targetDbUsername = "${{ inputs.target_db_username }}"
         $targetDbPassword = "${{ inputs.target_db_password }}"
         $targetDbUrl = "${{ inputs.target_db_url }}"
