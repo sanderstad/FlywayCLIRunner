@@ -1,5 +1,5 @@
-name: 'FlywayCLIInstaller'
-description: 'Install Flyway CLI'
+name: 'FlywayCLRunner'
+description: 'Run Flyway CLI'
 author: 'Sander Stad'
 branding:
   icon: 'terminal'
