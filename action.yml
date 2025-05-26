@@ -1,0 +1,155 @@
+name: 'FlywayCLIInstaller'
+description: 'Install Flyway CLI'
+author: 'Sander Stad'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  flyway_email:
+    description: 'The email address to use for Flyway CLI'
+    required: true
+    default: ''
+  flyway_token:
+    description: 'The token to use for Flyway CLI'
+    required: true
+    default: ''
+  target_db_username:
+    description: 'The username to use for the target database'
+    required: false
+    default: ''
+  target_db_password:
+    description: 'The password to use for the target database'
+    required: false
+    default: ''
+  target_db_url:
+    description: 'The URL to use for the target database'
+    required: true
+    default: ''
+  custom_params:
+    description: 'Custom parameters to pass to Flyway CLI'
+    required: false
+    default: ''
+  check_drift_on_migration:
+    description: 'Check for drift on migration'
+    required: false
+    default: 'false'
+  auth_disabled:
+    description: 'Disable authentication'
+    required: false
+    default: 'false'
+  environment:
+    description: 'The environment to use for the Flyway CLI'
+    required: false
+    default: ''
+  publish_result:
+    description: 'Publish the result of the migration'
+    required: false
+    default: 'false'
+  generate_report:
+    description: 'Generate a report'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Test if Flyway is already installed (Linux)'
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        if command -v flyway &> /dev/null; then
+          echo "Flyway is already installed"
+          echo "flyway_installed=true" >> $GITHUB_ENV
+        else
+          echo "Flyway is not installed"
+          exit 1
+        fi
+
+    - name: 'Test if Flyway is already installed (Windows)'
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        if (Get-Command flyway -ErrorAction SilentlyContinue) {
+          Write-Host "Flyway is already installed"
+          "flyway_installed=true" >> $env:GITHUB_ENV
+        } else {
+          Write-Host "Flyway is not installed"
+          exit 1
+        }
+
+    - name: 'Authenticate to Flyway'
+      if: ${{ inputs.auth_disabled }} == 'false' && success() }}
+      shell: pwsh
+      run: |
+        if (${{ inputs.auth_disabled }} -eq 'false') {
+          $flywayEmail = "${{ inputs.flyway_email }}"
+          $flywayToken = "${{ inputs.flyway_token }}"
+
+          flyway auth -IAgreeToTheEula -email="${{ env.FLYWAY_EMAIL }}" -token="${{ env.FLYWAY_TOKEN }}"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to authenticate to Flyway CLI"
+            exit 1
+          } else {
+            Write-Host "Authenticated to Flyway CLI"
+          }
+        }
+
+    - name: Create Check Report
+      if: ${{ inputs.generate_report }} == 'true' && success() }}
+      shell: pwsh
+      run: |
+        $targetDbUsername = "${{ inputs.target_db_username }}"
+        $targetDbPassword = "${{ inputs.target_db_password }}"
+        $targetDbUrl = "${{ inputs.target_db_url }}"
+        $customParams = "${{ inputs.custom_params }}"
+        $environment = "${{ inputs.environment }}"
+
+        flyway check -dryrun -changes -drift -environment="$environment" -user=$targetDbUsername -password=$targetDbPassword -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" "-check.buildEnvironment=$environment "-environments.${{ env.REPORT_ENVIRONMENT }}.user=${{ env.REPORT_DATABASE_USERNAME }}" "-environments.${{ env.REPORT_ENVIRONMENT }}.password=${{ env.REPORT_DATABASE_PASSWORD }}" "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ env.ENVIRONMENT }}-Check-Report.html" "-publishResult=${{ env.FLYWAY_PUBLISH_RESULT }}" "-flywayServicePublish.publishReport=${{ env.FLYWAY_PUBLISH_RESULT }}" "-reportEnabled=${{ env.FLYWAY_PUBLISH_RESULT }}" ${{ env.CUSTOM_PARAMS }}
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to create the check report"
+          exit 1
+        } else {
+          Write-Host "Created the check report"
+        }
+
+    - name: Clean DB Build
+      shell: pwsh
+      run: |
+        $targetDbUsername = "${{ inputs.target_db_username }}"
+        $targetDbPassword = "${{ inputs.target_db_password }}"
+        $targetDbUrl = "${{ inputs.target_db_url }}"
+        $customParams = "${{ inputs.custom_params }}"
+        $environment = "${{ inputs.environment }}"
+
+        flyway info clean info -environment="$environment" -user="$targetDbUsername" -password="$targetDbPassword" -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" -cleanDisabled='false' "-environments.$($environment).provisioner=clean" $customParams
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to clean the database"
+          exit 1
+        } else {
+          Write-Host "Cleaned the database"
+        }
+
+    - name: Migrate DB Build
+      shell: pwsh
+      run: |
+        $targetDbUsername = "${{ inputs.target_db_username }}"
+        $targetDbPassword = "${{ inputs.target_db_password }}"
+        $targetDbUrl = "${{ inputs.target_db_url }}"
+        $customParams = "${{ inputs.custom_params }}"
+        $environment = "${{ inputs.environment }}"
+
+        flyway info migrate info -environment="$environment" -user="$targetDbUsername" -password="$targetDbPassword" -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" -cleanDisabled='false' -baselineOnMigrate="true" "-publishResult=${{ inputs.publish_result }}" "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" "-reportEnabled=${{ inputs.publish_result }}" $customParams
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to migrate the database"
+          exit 1
+        } else {
+          Write-Host "Migrated the database"
+        }
+
+
+
+
+
+
+
