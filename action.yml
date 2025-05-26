@@ -61,7 +61,6 @@ runs:
         if command -v flyway &> /dev/null; then
           echo "Flyway is already installed"
           echo "flyway_installed=true" >> $GITHUB_ENV
-          echo "flyway.installed=true" >> $env:GITHUB_ENV
         else
           echo "Flyway is not installed"
           exit 1
@@ -74,7 +73,6 @@ runs:
         if (Get-Command flyway -ErrorAction SilentlyContinue) {
           Write-Host "Flyway is already installed"
           "flyway_installed=true" >> $env:GITHUB_ENV
-          "flyway.installed=true" >> $env:GITHUB_ENV
         } else {
           Write-Host "Flyway is not installed"
           exit 1
