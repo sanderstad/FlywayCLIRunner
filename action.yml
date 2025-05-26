@@ -82,7 +82,7 @@ runs:
       if: ${{ inputs.auth_disabled }} == 'false' && success() }}
       shell: pwsh
       run: |
-        if (${{ inputs.auth_disabled }} -eq 'false') {
+        if ('${{ inputs.auth_disabled }}'' -eq 'false') {
           $flywayEmail = "${{ inputs.flyway_email }}"
           $flywayToken = "${{ inputs.flyway_token }}"
 
