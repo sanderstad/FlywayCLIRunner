@@ -8,11 +8,11 @@ branding:
 inputs:
   flyway_email:
     description: 'The email address to use for Flyway CLI'
-    required: true
+    required: false
     default: ''
   flyway_token:
     description: 'The token to use for Flyway CLI'
-    required: true
+    required: false
     default: ''
   target_db_username:
     description: 'The username to use for the target database'
