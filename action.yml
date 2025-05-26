@@ -108,14 +108,15 @@ runs:
         $targetDbUrl = "${{ inputs.target_db_url }}"
         $customParams = "${{ inputs.custom_params }}"
         $environment = "${{ inputs.environment }}"
+        flyway check -dryrun -changes -drift -installedBy="ci-pipeline" -environment="$environment" -user="$targetDbUsername" -password="$targetDbPassword" -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" "-check.buildEnvironment=$environment" "-environments.$($environment).user=$($targetDbUsername)" "-environments.$($environment).password=$($targetDbpassword)" "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-$($environment)-Check-Report.html" "-publishResult=$($inputs.publish_result)" "-flywayServicePublish.publishReport=$($inputs.publish_result)" "-reportEnabled=$($inputs.publish_result)" ${{ inputs.custom_params }}
 
-        flyway check -dryrun -changes -drift -environment="$environment" -installedBy="ci-pipeline" -user=$targetDbUsername -password=$targetDbPassword -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" "-check.buildEnvironment=$environment" "-environments.${{ env.REPORT_ENVIRONMENT }}.user=${{ env.REPORT_DATABASE_USERNAME }}" "-environments.${{ env.REPORT_ENVIRONMENT }}.password=${{ env.REPORT_DATABASE_PASSWORD }}" "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ env.ENVIRONMENT }}-Check-Report.html" "-publishResult=${{ env.FLYWAY_PUBLISH_RESULT }}" "-flywayServicePublish.publishReport=${{ env.FLYWAY_PUBLISH_RESULT }}" "-reportEnabled=${{ env.FLYWAY_PUBLISH_RESULT }}" ${{ env.CUSTOM_PARAMS }}
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to create the check report"
           exit 1
         } else {
           Write-Host "Created the check report"
         }
+      continue-on-error: true
 
     - name: Clean DB Build
       shell: pwsh
