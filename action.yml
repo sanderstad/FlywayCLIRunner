@@ -59,12 +59,13 @@ runs:
       if: runner.os == 'Linux'
       shell: bash
       run: |
-        if command -v flyway &> /dev/null; then
-          echo "Flyway is already installed"
+        if command -v flywa &> /dev/null; then
+          echo "Flyway is installed. Continuing..."
           echo "flyway_installed=true" >> $GITHUB_ENV
           echo "flyway_installed_by=ci-pipeline" >> $GITHUB_ENV
         else
-          echo "Flyway is not installed"
+          echo "Flyway is not installed!"
+          echo "Please install Flyway CLI before running this action, i.e. via the FlywayCLIInstaller action."
           exit 1
         fi
 
@@ -72,12 +73,13 @@ runs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        if (Get-Command flyway -ErrorAction SilentlyContinue) {
-          Write-Host "Flyway is already installed"
+        if (Get-Command flywa -ErrorAction SilentlyContinue) {
+          Write-Host "Flyway is installed. Continuing..."
           "flyway_installed=true" >> $env:GITHUB_ENV
           "flyway_installed_by=ci-pipeline" >> $env:GITHUB_ENV
         } else {
-          Write-Host "Flyway is not installed"
+          Write-Host "Flyway is not installed!"
+          Write-Host "Please install Flyway CLI before running this action, i.e. via the FlywayCLIInstaller action."
           exit 1
         }
 
