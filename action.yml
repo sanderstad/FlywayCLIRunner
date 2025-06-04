@@ -117,11 +117,6 @@ runs:
       shell: pwsh
       run: |
         Write-Host "Creating check report"
-        $targetDbUsername = ""
-        $targetDbPassword = "${{ inputs.target_db_password }}"
-        $targetDbUrl = "${{ inputs.target_db_url }}"
-        $customParams = "${{ inputs.custom_params }}"
-        $environment = "${{ inputs.environment }}"
 
         flyway check `
           -dryrun `
@@ -133,10 +128,10 @@ runs:
           -password="${{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          "-check.buildEnvironment=$environment" `
-          "-environments.$($environment).user=$($targetDbUsername)" `
-          "-environments.$($environment).password=$($targetDbPassword)" `
-          "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-$($environment)-Check-Report.html" `
+          "-check.buildEnvironment=${{ inputs.report_environment }}" `
+          "-environments.${{inputs.report_environment}}.user=${{ inputs.report_db_username }}" `
+          "-environments.${inputs.report_environment}}.password=${{ inputs.report_db_password }}" `
+          "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment}}-Check-Report.html" `
           "-publishResult=$($inputs.publish_result)" `
           "-flywayServicePublish.publishReport=$($inputs.publish_result)" `
           "-reportEnabled=$($inputs.publish_result)" `
