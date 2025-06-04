@@ -176,7 +176,20 @@ runs:
         $customParams = "${{ inputs.custom_params }}"
         $environment = "${{ inputs.environment }}"
 
-        flyway info migrate info -environment="$environment" -user="$targetDbUsername" -password="$targetDbPassword" -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" -cleanDisabled='false' -baselineOnMigrate="true" "-publishResult=${{ inputs.publish_result }}" "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" "-reportEnabled=${{ inputs.publish_result }}" $customParams
+        flyway info `
+          migrate info `
+          -environment="$environment" `
+          -user="$targetDbUsername" `
+          -password="$targetDbPassword" `
+          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+          -cleanDisabled='false' `
+          -baselineOnMigrate="true" `
+          "-publishResult=${{ inputs.publish_result }}" `
+          "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
+          "-reportEnabled=${{ inputs.publish_result }}" `
+          $customParams
+
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to migrate the database"
           exit 1
