@@ -51,6 +51,18 @@ inputs:
     description: 'Generate a report'
     required: false
     default: 'false'
+  report_db_username:
+    description: 'The username to use for the report database'
+    required: false
+    default: ''
+  report_db_password:
+    description: 'The password to use for the report database'
+    required: false
+    default: ''
+  report_environment:
+    description: 'The environment to use for the report'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -105,7 +117,7 @@ runs:
       shell: pwsh
       run: |
         Write-Host "Creating check report"
-        $targetDbUsername = "${{ inputs.target_db_username }}"
+        $targetDbUsername = ""
         $targetDbPassword = "${{ inputs.target_db_password }}"
         $targetDbUrl = "${{ inputs.target_db_url }}"
         $customParams = "${{ inputs.custom_params }}"
@@ -116,9 +128,9 @@ runs:
           -changes `
           -drift `
           -installedBy="ci-pipeline" `
-          -environment="$environment" `
-          -user="$targetDbUsername" `
-          -password="$targetDbPassword" `
+          -environment="${{ inputs.environment }}" `
+          -user="${{ inputs.target_db_username }}" `
+          -password="${{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
           "-check.buildEnvironment=$environment" `
