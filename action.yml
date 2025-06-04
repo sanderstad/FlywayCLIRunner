@@ -128,17 +128,12 @@ runs:
       shell: pwsh
       run: |
         Write-Host "Migrating database build"
-        $targetDbUsername = "${{ inputs.target_db_username }}"
-        $targetDbPassword = "${{ inputs.target_db_password }}"
-        $targetDbUrl = "${{ inputs.target_db_url }}"
-        $customParams = "${{ inputs.custom_params }}"
-        $environment = "${{ inputs.environment }}"
 
         flyway info `
           migrate info `
-          -environment="$environment" `
-          -user="$targetDbUsername" `
-          -password="$targetDbPassword" `
+          -environment="${{ inputs.environment }}" `
+          -user="${{ inputs.target_db_username }}" `
+          -password="${{{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
           -cleanDisabled='false' `
@@ -146,7 +141,7 @@ runs:
           "-publishResult=${{ inputs.publish_result }}" `
           "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
           "-reportEnabled=${{ inputs.publish_result }}" `
-          $customParams
+          ${{ inputs.custom_params}}
 
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to migrate the database"
