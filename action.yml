@@ -100,22 +100,17 @@ runs:
       shell: pwsh
       run: |
         Write-Host "Cleaning database build"
-        $targetDbUsername = "${{ inputs.target_db_username }}"
-        $targetDbPassword = "${{ inputs.target_db_password }}"
-        $targetDbUrl = "${{ inputs.target_db_url }}"
-        $customParams = "${{ inputs.custom_params }}"
-        $environment = "${{ inputs.environment }}"
 
         flyway info `
           clean info `
-          -environment="$environment" `
-          -user="$targetDbUsername" `
-          -password="$targetDbPassword" `
+          -environment="${{ inputs.environment }}" `
+          -user="${{ inputs.target_db_username }}" `
+          -password="${{{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
           -cleanDisabled='false' `
           "-environments.$($environment).provisioner=clean" `
-          $customParams
+          ${{ inputs.custom_params }}
 
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to clean the database"
