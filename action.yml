@@ -111,43 +111,24 @@ runs:
         $customParams = "${{ inputs.custom_params }}"
         $environment = "${{ inputs.environment }}"
 
-        Write-Host "flyway check
-          -dryrun
-          -changes
-          -drift
-          -installedBy=`"ci-pipeline`"
-          -environment=`"$environment`"
-          -user=`"$targetDbUsername`"
-          -password=`"$targetDbPassword`"
-          -configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"
-          -locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"
-          `"-check.buildEnvironment=$environment`"
-          `"-environments.$($environment).user=$($targetDbUsername)`"
-          `"-environments.$($environment).password=$($targetDbPassword)`"
-          `"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-$($environment)-Check-Report.html`"
-          `"-publishResult=$($inputs.publish_result)`"
-          `"-flywayServicePublish.publishReport=$($inputs.publish_result)`"
-          `"-reportEnabled=$($inputs.publish_result)`"
-          ${{ inputs.custom_params }}"
-
-        # flyway check
-        #   -dryrun
-        #   -changes
-        #   -drift
-        #   -installedBy="ci-pipeline"
-        #   -environment="$environment"
-        #   -user="$targetDbUsername"
-        #   -password="$targetDbPassword"
-        #   -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml"
-        #   -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations"
-        #   "-check.buildEnvironment=$environment"
-        #   "-environments.$($environment).user=$($targetDbUsername)"
-        #   "-environments.$($environment).password=$($targetDbPassword)"
-        #   "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-$($environment)-Check-Report.html"
-        #   "-publishResult=$($inputs.publish_result)"
-        #   "-flywayServicePublish.publishReport=$($inputs.publish_result)"
-        #   "-reportEnabled=$($inputs.publish_result)"
-        #   ${{ inputs.custom_params }}
+        flyway check `
+          -dryrun `
+          -changes `
+          -drift `
+          -installedBy="ci-pipeline" `
+          -environment="$environment" `
+          -user="$targetDbUsername" `
+          -password="$targetDbPassword" `
+          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+          "-check.buildEnvironment=$environment" `
+          "-environments.$($environment).user=$($targetDbUsername)" `
+          "-environments.$($environment).password=$($targetDbPassword)" `
+          "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Report-Run-${{ GITHUB.RUN_ID }}-$($environment)-Check-Report.html" `
+          "-publishResult=$($inputs.publish_result)" `
+          "-flywayServicePublish.publishReport=$($inputs.publish_result)" `
+          "-reportEnabled=$($inputs.publish_result)" `
+          ${{ inputs.custom_params }}
 
         # flyway check
         #   -dryrun
