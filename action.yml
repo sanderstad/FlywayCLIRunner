@@ -128,7 +128,7 @@ runs:
           migrate info `
           -environment="${{ inputs.environment }}" `
           -user="${{ inputs.target_db_username }}" `
-          -password="${{{ inputs.target_db_password }}" `
+          -password="${{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
           -cleanDisabled='false' `
