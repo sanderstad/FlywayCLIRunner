@@ -47,22 +47,6 @@ inputs:
     description: 'Publish the result of the migration'
     required: false
     default: 'false'
-  generate_report:
-    description: 'Generate a report'
-    required: false
-    default: 'false'
-  report_db_username:
-    description: 'The username to use for the report database'
-    required: false
-    default: ''
-  report_db_password:
-    description: 'The password to use for the report database'
-    required: false
-    default: ''
-  report_environment:
-    description: 'The environment to use for the report'
-    required: false
-    default: ''
 
 runs:
   using: 'composite'
