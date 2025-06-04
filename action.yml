@@ -109,7 +109,7 @@ runs:
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
           -cleanDisabled='false' `
-          "-environments.$($environment).provisioner=clean" `
+          "-environments.${{ inputs.environment}}.provisioner=clean" `
           ${{ inputs.custom_params }}
 
         if ($LASTEXITCODE -ne 0) {
