@@ -148,7 +148,17 @@ runs:
         $customParams = "${{ inputs.custom_params }}"
         $environment = "${{ inputs.environment }}"
 
-        flyway info clean info -environment="$environment" -user="$targetDbUsername" -password="$targetDbPassword" -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" -cleanDisabled='false' "-environments.$($environment).provisioner=clean" $customParams
+        flyway info `
+          clean info `
+          -environment="$environment" `
+          -user="$targetDbUsername" `
+          -password="$targetDbPassword" `
+          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+          -cleanDisabled='false' `
+          "-environments.$($environment).provisioner=clean" `
+          $customParams
+
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to clean the database"
           exit 1
