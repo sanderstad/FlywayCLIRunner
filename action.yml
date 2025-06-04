@@ -96,28 +96,28 @@ runs:
           }
         }
 
-    - name: Clean DB Build
-      shell: pwsh
-      run: |
-        Write-Host "Cleaning database build"
+    # - name: Clean DB Build
+    #   shell: pwsh
+    #   run: |
+    #     Write-Host "Cleaning database build"
 
-        flyway info `
-          clean info `
-          -environment="${{ inputs.environment }}" `
-          -user="${{ inputs.target_db_username }}" `
-          -password="${{ inputs.target_db_password }}" `
-          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
-          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          -cleanDisabled='false' `
-          "-environments.${{ inputs.environment}}.provisioner=clean" `
-          ${{ inputs.custom_params }}
+    #     flyway info `
+    #       clean info `
+    #       -environment="${{ inputs.environment }}" `
+    #       -user="${{ inputs.target_db_username }}" `
+    #       -password="${{ inputs.target_db_password }}" `
+    #       -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+    #       -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+    #       -cleanDisabled='false' `
+    #       "-environments.${{ inputs.environment}}.provisioner=clean" `
+    #       ${{ inputs.custom_params }}
 
-        if ($LASTEXITCODE -ne 0) {
-          Write-Error "Failed to clean the database"
-          exit 1
-        } else {
-          Write-Host "Cleaned the database"
-        }
+    #     if ($LASTEXITCODE -ne 0) {
+    #       Write-Error "Failed to clean the database"
+    #       exit 1
+    #     } else {
+    #       Write-Host "Cleaned the database"
+    #     }
 
     - name: Migrate DB Build
       shell: pwsh
@@ -131,7 +131,6 @@ runs:
           -password="${{ inputs.target_db_password }}" `
           -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
           -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          -cleanDisabled='false' `
           -baselineOnMigrate="true" `
           "-publishResult=${{ inputs.publish_result }}" `
           "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
