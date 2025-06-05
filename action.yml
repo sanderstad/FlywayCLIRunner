@@ -47,6 +47,10 @@ inputs:
     description: 'Publish the result of the migration'
     required: false
     default: 'false'
+  clean_db_build:
+    description: 'Clean the database build before migrating'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -96,28 +100,29 @@ runs:
           }
         }
 
-    # - name: Clean DB Build
-    #   shell: pwsh
-    #   run: |
-    #     Write-Host "Cleaning database build"
+    - name: Clean DB Build
+      if: ${{ inputs.clean_db_build }} == 'true' && success() }}
+      shell: pwsh
+      run: |
+        Write-Host "Cleaning database build"
 
-    #     flyway info `
-    #       clean info `
-    #       -environment="${{ inputs.environment }}" `
-    #       -user="${{ inputs.target_db_username }}" `
-    #       -password="${{ inputs.target_db_password }}" `
-    #       -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
-    #       -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-    #       -cleanDisabled='false' `
-    #       "-environments.${{ inputs.environment}}.provisioner=clean" `
-    #       ${{ inputs.custom_params }}
+        flyway info `
+          clean info `
+          -environment="${{ inputs.environment }}" `
+          -user="${{ inputs.target_db_username }}" `
+          -password="${{ inputs.target_db_password }}" `
+          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+          -cleanDisabled='false' `
+          "-environments.${{ inputs.environment}}.provisioner=clean" `
+          ${{ inputs.custom_params }}
 
-    #     if ($LASTEXITCODE -ne 0) {
-    #       Write-Error "Failed to clean the database"
-    #       exit 1
-    #     } else {
-    #       Write-Host "Cleaned the database"
-    #     }
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to clean the database"
+          exit 1
+        } else {
+          Write-Host "Cleaned the database"
+        }
 
     - name: Migrate DB Build
       shell: pwsh
