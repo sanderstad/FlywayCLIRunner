@@ -35,10 +35,10 @@ inputs:
     description: 'Check for drift on migration'
     required: false
     default: 'false'
-  auth_disabled:
+  authenticate_flyway:
     description: 'Disable authentication'
     required: false
-    default: 'false'
+    default: 'true'
   environment:
     description: 'The environment to use for the Flyway CLI'
     required: false
@@ -84,10 +84,10 @@ runs:
         }
 
     - name: 'Authenticate to Flyway'
-      if: ${{ inputs.auth_disabled }} == 'false' && success() }}
+      if: ${{ inputs.authenticate_flyway }} == 'true' && success() }}
       shell: pwsh
       run: |
-        if ('${{ inputs.auth_disabled }}' -eq 'false') {
+        if ('${{ inputs.authenticate_flyway }}' -eq 'false') {
           $flywayEmail = "${{ inputs.flyway_email }}"
           $flywayToken = "${{ inputs.flyway_token }}"
 
