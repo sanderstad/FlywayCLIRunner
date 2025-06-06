@@ -95,7 +95,7 @@ runs:
         }
 
     - name: 'Authenticate to Flyway'
-      if: ${{ inputs.authenticate_flyway }} == 'true' && success() }}
+      if: "${{ inputs.authenticate_flyway }}" == 'true' && success() }}
       shell: pwsh
       run: |
         if ('${{ inputs.authenticate_flyway }}' -eq 'false') {
