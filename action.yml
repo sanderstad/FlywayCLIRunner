@@ -39,16 +39,16 @@ inputs:
     description: 'Check for drift on migration'
     required: false
     default: 'false'
-  generate_check_report:
-    description: 'Generate a check report'
-    required: false
-    default: 'false'
   publish_result:
     description: 'Publish the result of the migration'
     required: false
     default: 'false'
   clean_db_build:
     description: 'Clean the database build before migrating'
+    required: false
+    default: 'false'
+  generate_check_report:
+    description: 'Generate a check report'
     required: false
     default: 'false'
   report_environment:
