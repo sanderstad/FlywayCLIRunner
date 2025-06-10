@@ -139,6 +139,7 @@ runs:
 
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to authenticate to Flyway CLI"
+          Write-Error $_
           exit 1
         } else {
           Write-Host "Authenticated to Flyway CLI"
@@ -163,6 +164,7 @@ runs:
 
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Failed to clean the database"
+          Write-Error $_
           exit 1
         } else {
           Write-Host "Cleaned the database"
