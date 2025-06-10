@@ -62,10 +62,19 @@ runs:
           Write-Error "Target DB Password is required"
           exit 1
         }
-        if (('${{ inputs.flyway_email }}' -ne '') -and ('${{ inputs.flyway_token }}' -eq '')) {
-          Write-Error "Flyway Email and Token are required for authentication"
-          exit 1
+
+        if('${{ inputs.authenticate_flyway}}' -eq 'true') {
+          if('${{ inputs.flyway_email}}' -eq '') {
+            Write-Error "Flyway Email is required for authentication"
+            exit 1
+          }
+
+          if('${{ inputs.flyway_token}}' -eq '') {
+            Write-Error "Flyway Token is required for authentication"
+            exit 1
+          }
         }
+
     - name: 'Test if Flyway is already installed (Linux)'
       if: runner.os == 'Linux'
       shell: bash
@@ -98,23 +107,21 @@ runs:
       if: ${{ inputs.authenticate_flyway }} == 'true' && success()
       shell: pwsh
       run: |
-        if ('${{ inputs.authenticate_flyway }}' -eq 'false') {
-          $flywayEmail = "${{ inputs.flyway_email }}"
-          $flywayToken = "${{ inputs.flyway_token }}"
+        $flywayEmail = "${{ inputs.flyway_email }}"
+        $flywayToken = "${{ inputs.flyway_token }}"
 
-          if('${{ inputs.agree_to_eula }}' -eq 'true') {
-            Write-Host "Agreeing to the Flyway EULA"
-            flyway auth -IAgreeToTheEula -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
-          } else {
-            flyway auth -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
-          }
+        if('${{ inputs.agree_to_eula }}' -eq 'true') {
+          Write-Host "Agreeing to the Flyway EULA"
+          flyway auth -IAgreeToTheEula -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
+        } else {
+          flyway auth -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
+        }
 
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to authenticate to Flyway CLI"
-            exit 1
-          } else {
-            Write-Host "Authenticated to Flyway CLI"
-          }
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to authenticate to Flyway CLI"
+          exit 1
+        } else {
+          Write-Host "Authenticated to Flyway CLI"
         }
 
     # - name: Clean DB Build
