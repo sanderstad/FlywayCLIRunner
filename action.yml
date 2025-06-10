@@ -102,7 +102,7 @@ runs:
           $flywayEmail = "${{ inputs.flyway_email }}"
           $flywayToken = "${{ inputs.flyway_token }}"
 
-          if('${{ inputs.agree_to_eula }}' == 'true') {
+          if('${{ inputs.agree_to_eula }}' -eq 'true') {
             Write-Host "Agreeing to the Flyway EULA"
             flyway auth -IAgreeToTheEula -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
           } else {
