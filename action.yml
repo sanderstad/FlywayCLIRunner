@@ -127,48 +127,54 @@ runs:
       if: ${{ inputs.authenticate_flyway == 'true' && success() }}
       shell: pwsh
       run: |
-        Write-Host "Authenticating to Flyway CLI..."
-        $flywayEmail = "${{ inputs.flyway_email }}"
-        $flywayToken = "${{ inputs.flyway_token }}"
+        try {
+          Write-Host "Authenticating to Flyway CLI..."
+          $flywayEmail = "${{ inputs.flyway_email }}"
+          $flywayToken = "${{ inputs.flyway_token }}"
 
-        if('${{ inputs.agree_to_eula }}' -eq 'true') {
-          Write-Host "Agreeing to the Flyway EULA"
-          flyway auth -IAgreeToTheEula -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
-        } else {
-          flyway auth -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
-        }
+          if ('${{ inputs.agree_to_eula }}' -eq 'true') {
+            Write-Host "Agreeing to the Flyway EULA"
+            flyway auth -IAgreeToTheEula -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
+          } else {
+            flyway auth -email="${{ inputs.flyway_email }}" -token="${{ inputs.flyway_token }}"
+          }
 
-        if ($LASTEXITCODE -ne 0) {
-          Write-Warning $_
-          Write-Error "Failed to authenticate to Flyway CLI"
-          exit 1
-        } else {
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to authenticate to Flyway CLI"
+          }
+
           Write-Host "Authenticated to Flyway CLI"
+        } catch {
+          Write-Error $_.Exception.Message
+          exit 1
         }
 
     - name: Clean DB Build
       if: ${{ inputs.clean_db_build == 'true' && success() }}
       shell: pwsh
       run: |
-        Write-Host "Cleaning database build..."
+        try {
+          Write-Host "Cleaning database build..."
 
-        flyway info `
-          clean info `
-          -environment="${{ inputs.environment }}" `
-          -user="${{ inputs.target_db_username }}" `
-          -password="${{ inputs.target_db_password }}" `
-          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
-          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          -cleanDisabled='false' `
-          "-environments.${{ inputs.environment}}.provisioner=clean" `
-          ${{ inputs.custom_params }}
+          flyway info `
+            clean info `
+            -environment="${{ inputs.environment }}" `
+            -user="${{ inputs.target_db_username }}" `
+            -password="${{ inputs.target_db_password }}" `
+            -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+            -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+            -cleanDisabled='false' `
+            "-environments.${{ inputs.environment}}.provisioner=clean" `
+            ${{ inputs.custom_params }}
 
-        if ($LASTEXITCODE -ne 0) {
-          Write-Warning $_
-          Write-Error "Failed to clean the database"
-          exit 1
-        } else {
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to clean the database"
+          }
+
           Write-Host "Cleaned the database"
+        } catch {
+          Write-Error $_.Exception.Message
+          exit 1
         }
 
     - name: Generate Check Report
@@ -176,57 +182,64 @@ runs:
       shell: pwsh
       continue-on-error: true
       run: |
-        Write-Host "Generating check report..."
+        try {
+          Write-Host "Generating check report..."
 
-        flyway check `
-          -dryrun `
-          -changes `
-          -drift `
-          -environment="${{ inputs.environment }}" `
-          -user="${{ inputs.target_db_username }}" `
-          -password="${{ inputs.target_db_password }}" `
-          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
-          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          "-check.buildEnvironment=${{ inputs.report_environment }}" `
-          "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_username }}" `
-          "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_password }}" `
-          "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
-          "-publishResult=${{ inputs.publish_result }}" `
-          "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
-          "-reportEnabled=${{ inputs.publish_result }}" `
-          ${{ env.CUSTOM_PARAMS }}
+          flyway check `
+            -dryrun `
+            -changes `
+            -drift `
+            -environment="${{ inputs.environment }}" `
+            -user="${{ inputs.target_db_username }}" `
+            -password="${{ inputs.target_db_password }}" `
+            -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+            -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+            "-check.buildEnvironment=${{ inputs.report_environment }}" `
+            "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_username }}" `
+            "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_password }}" `
+            "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
+            "-publishResult=${{ inputs.publish_result }}" `
+            "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
+            "-reportEnabled=${{ inputs.publish_result }}" `
+            ${{ env.CUSTOM_PARAMS }}
 
-        if ($LASTEXITCODE -ne 0) {
-          Write-Warning $_
-          Write-Error "Failed to generate check report"
-          exit 1
-        } else {
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate check report"
+          }
+
           Write-Host "Generated check repository"
+        } catch {
+          Write-Error $_.Exception.Message
+          exit 1
         }
 
     - name: Migrate DB Build
       shell: pwsh
       run: |
-        Write-Host "Migrating database build..."
+        try {
+          Write-Host "Migrating database build..."
 
-        flyway info `
-          migrate info `
-          -environment="${{ inputs.environment }}" `
-          -user="${{ inputs.target_db_username }}" `
-          -password="${{ inputs.target_db_password }}" `
-          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
-          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-          -baselineOnMigrate="true" `
-          "-publishResult=${{ inputs.publish_result }}" `
-          "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
-          "-reportEnabled=${{ inputs.publish_result }}" `
-          ${{ inputs.custom_params}}
+          flyway info `
+            migrate info `
+            -environment="${{ inputs.environment }}" `
+            -user="${{ inputs.target_db_username }}" `
+            -password="${{ inputs.target_db_password }}" `
+            -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+            -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+            -baselineOnMigrate="true" `
+            "-publishResult=${{ inputs.publish_result }}" `
+            "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
+            "-reportEnabled=${{ inputs.publish_result }}" `
+            ${{ inputs.custom_params }}
 
-        if ($LASTEXITCODE -ne 0) {
-          Write-Error "Failed to migrate the database"
-          exit 1
-        } else {
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to migrate the database"
+          }
+
           Write-Host "Migrated the database"
+        } catch {
+          Write-Error $_.Exception.Message
+          exit 1
         }
 
 
