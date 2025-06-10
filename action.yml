@@ -197,8 +197,8 @@ runs:
           ${{ env.CUSTOM_PARAMS }}
 
         if ($LASTEXITCODE -ne 0) {
+          Write-Warning $_
           Write-Error "Failed to generate check report"
-          Write-Error $_
           exit 1
         } else {
           Write-Host "Generated check repository"
