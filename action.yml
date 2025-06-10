@@ -39,6 +39,10 @@ inputs:
     description: 'Check for drift on migration'
     required: false
     default: 'false'
+  generate_check_report:
+    description: 'Generate a check report'
+    required: false
+    default: 'false'
   publish_result:
     description: 'Publish the result of the migration'
     required: false
@@ -47,6 +51,22 @@ inputs:
     description: 'Clean the database build before migrating'
     required: false
     default: 'false'
+  report_environment:
+    description: 'The environment to use for the report'
+    required: false
+    default: 'default'
+  report_database:
+    description: 'The name to use for the report database'
+    required: false
+    default: ''
+  report_database_username:
+    description: 'The username to use for the report database'
+    required: false
+    default: ''
+  report_database_password:
+    description: 'The password to use for the report database'
+    required: false
+    default: ''
   custom_params:
     description: 'Custom parameters to pass to Flyway CLI'
     required: false
@@ -147,6 +167,38 @@ runs:
     #     } else {
     #       Write-Host "Cleaned the database"
     #     }
+
+    - name: Generate Check Report
+      if: ${{ inputs.generate_check_report == 'true' && success() }}
+      shell: pwsh
+      continue-on-error: true
+      run: |
+        Write-Host "Generating check repository"
+
+        flyway check `
+          -dryrun `
+          -changes `
+          -drift `
+          -environment="${{ inputs.environment }}" `
+          -user="${{ inputs.target_db_username }}" `
+          -password="${{ inputs.target_db_password }}" `
+          -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
+          -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
+          "-check.buildEnvironment=${{ inputs.report_environment }}" `
+          "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_username }}" `
+          "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_password }}" `
+          "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
+          "-publishResult=${{ inputs.publish_result }}" `
+          "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
+          "-reportEnabled=${{ inputs.publish_result }}" `
+          ${{ env.CUSTOM_PARAMS }}
+
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to generate check report"
+          exit 1
+        } else {
+          Write-Host "Generated check repository"
+        }
 
     - name: Migrate DB Build
       shell: pwsh
