@@ -127,6 +127,7 @@ runs:
       if: ${{ inputs.authenticate_flyway == 'true' && success() }}
       shell: pwsh
       run: |
+        Write-Host "Authenticating to Flyway CLI..."
         $flywayEmail = "${{ inputs.flyway_email }}"
         $flywayToken = "${{ inputs.flyway_token }}"
 
@@ -138,8 +139,8 @@ runs:
         }
 
         if ($LASTEXITCODE -ne 0) {
+          Write-Warning $_
           Write-Error "Failed to authenticate to Flyway CLI"
-          Write-Error $_
           exit 1
         } else {
           Write-Host "Authenticated to Flyway CLI"
@@ -149,7 +150,7 @@ runs:
       if: ${{ inputs.clean_db_build == 'true' && success() }}
       shell: pwsh
       run: |
-        Write-Host "Cleaning database build"
+        Write-Host "Cleaning database build..."
 
         flyway info `
           clean info `
@@ -163,8 +164,8 @@ runs:
           ${{ inputs.custom_params }}
 
         if ($LASTEXITCODE -ne 0) {
+          Write-Warning $_
           Write-Error "Failed to clean the database"
-          Write-Error $_
           exit 1
         } else {
           Write-Host "Cleaned the database"
@@ -175,7 +176,7 @@ runs:
       shell: pwsh
       continue-on-error: true
       run: |
-        Write-Host "Generating check repository"
+        Write-Host "Generating check report..."
 
         flyway check `
           -dryrun `
@@ -206,7 +207,7 @@ runs:
     - name: Migrate DB Build
       shell: pwsh
       run: |
-        Write-Host "Migrating database build"
+        Write-Host "Migrating database build..."
 
         flyway info `
           migrate info `
