@@ -83,6 +83,10 @@ inputs:
     description: 'Custom parameters to pass to Flyway CLI'
     required: false
     default: ''
+  debug:
+    description: 'Enable debug mode'
+    required: false
+    default: 'false'
 
 
 
