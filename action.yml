@@ -67,10 +67,6 @@ inputs:
     description: 'The environment to use for the report'
     required: false
     default: 'default'
-  report_database:
-    description: 'The name to use for the report database'
-    required: false
-    default: ''
   report_database_username:
     description: 'The username to use for the report database'
     required: false
