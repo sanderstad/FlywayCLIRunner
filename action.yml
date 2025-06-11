@@ -63,18 +63,22 @@ inputs:
     description: 'Generate a check report'
     required: false
     default: 'false'
-  report_environment:
+  check_environment:
     description: 'The environment to use for the report'
     required: false
     default: 'default'
-  report_database_username:
+  check_database_username:
     description: 'The username to use for the report database'
     required: false
     default: ''
-  report_database_password:
+  check_database_password:
     description: 'The password to use for the report database'
     required: false
     default: ''
+  check_filter_file:
+    description: 'The filter file to use for the check report'
+    required: false
+    default: '${ GITHUB.WORKSPACE }/Filter.scpf'
   custom_params:
     description: 'Custom parameters to pass to Flyway CLI'
     required: false
@@ -260,10 +264,10 @@ runs:
               "-password=`"${{ inputs.target_db_password }}`"",
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
               "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
-              "-check.buildEnvironment=`"${{ inputs.report_environment }}`"",
-              "-environments.${{ inputs.report_environment }}.user=`"${{ inputs.report_database_username }}`"",
-              "-environments.${{ inputs.report_environment }}.password=`"${{ inputs.report_database_password }}`"",
-              "-environments.${{ inputs.report_environment }}.provisioner=`"clean`"",
+              "-check.buildEnvironment=`"${{ inputs.check_environment }}`"",
+              "-environments.${{ inputs.check_environment }}.user=`"${{ inputs.check_database_username }}`"",
+              "-environments.${{ inputs.check_environment }}.password=`"${{ inputs.check_database_password }}`"",
+              "-environments.${{ inputs.check_environment }}.provisioner=`"clean`"",
               "-reportFilename=`"${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
               "-publishResult=`"${{ inputs.publish_result }}`"",
               "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
@@ -283,10 +287,10 @@ runs:
             -password="${{ inputs.target_db_password }}" `
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
             -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
-            "-check.buildEnvironment=${{ inputs.report_environment }}" `
-            "-check.filterFile=${{ GITHUB.WORKSPACE }}/Filter.scpf" `
-            "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_database_username }}" `
-            "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_database_password }}" `
+            "-check.buildEnvironment=${{ inputs.check_environment }}" `
+            "-check.filterFile=${{ inputs.check_filter_file }}" `
+            "-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}" `
+            "-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}" `
             "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
             "-publishResult=${{ inputs.publish_result }}" `
             "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
