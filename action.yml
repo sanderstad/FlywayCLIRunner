@@ -284,6 +284,7 @@ runs:
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
             -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
             "-check.buildEnvironment=${{ inputs.report_environment }}" `
+            "-check.filterFile=${{ GITHUB.WORKSPACE }}/Filter.scpf" `
             "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_database_username }}" `
             "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_database_password }}" `
             "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
