@@ -328,6 +328,7 @@ runs:
               "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
               "-reportEnabled=`"${{ inputs.publish_result }}`"",
               "${{ inputs.custom_params }}"
+            ) -join " "
 
             Write-Host "Command to be executed:"
             Write-Host $cmd
