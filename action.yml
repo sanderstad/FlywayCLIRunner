@@ -7,6 +7,22 @@ branding:
   color: 'blue'
 
 inputs:
+  action_migrate:
+    description: 'Enable migration'
+    required: false
+    default: 'true'
+  action_clean_db:
+    description: 'Enable cleaning the database build'
+    required: false
+    default: 'false'
+  action_dryrun:
+    description: 'Enable dry run'
+    required: false
+    default: 'false'
+  action_check_report:
+    description: 'Enable check report generation'
+    required: false
+    default: 'false'
   flyway_email:
     description: 'The email address to use for Flyway CLI'
     required: false
@@ -35,10 +51,6 @@ inputs:
     description: 'The environment to use for the Flyway CLI'
     required: true
     default: ''
-  check_drift_on_migration:
-    description: 'Check for drift on migration'
-    required: false
-    default: 'false'
   publish_result:
     description: 'Publish the result of the migration'
     required: false
@@ -71,6 +83,8 @@ inputs:
     description: 'Custom parameters to pass to Flyway CLI'
     required: false
     default: ''
+
+
 
 runs:
   using: 'composite'
@@ -150,11 +164,30 @@ runs:
         }
 
     - name: Clean DB Build
-      if: ${{ inputs.clean_db_build == 'true' && success() }}
+      if: ${{ inputs.action_clean_db == 'true' && success() }}
       shell: pwsh
       run: |
         try {
           Write-Host "Cleaning database build..."
+
+          # If debug is set
+          if( '${{ inputs.debug }}' -eq 'true' ) {
+            $cmd = @(
+              "flyway info",
+              "clean info",
+              "-environment=`"${{ inputs.environment }}`"",
+              "-user=`"${{ inputs.target_db_username }}`"",
+              "-password=`"${{ inputs.target_db_password }}`"",
+              "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
+              "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
+              "-cleanDisabled=`"${{ inputs.clean_disabled }}`"",
+              "-environments.${{ inputs.environment }}.provisioner=clean",
+              "${{ inputs.custom_params }}"
+            ) -join " "
+
+            Write-Host "Command to be executed:"
+            Write-Host $cmd
+          }
 
           flyway info `
             clean info `
@@ -176,40 +209,73 @@ runs:
           Write-Error $_.Exception.Message
           exit 1
         }
+    - name: Dry Run
+      if: ${{ inputs.action_dryrun == 'true' && success() }}
+      shell: pwsh
+      run: |
+        try {
+          Write-Host "Generating check report..."
+
+          # If debug is set
+          if( '${{ inputs.debug }}' -eq 'true' ) {
+            $cmd = @(
+              "flyway check",
+              "-dryrun",
+            ) -join " "
+
+            Write-Host "Command to be executed:"
+            Write-Host $cmd
+          }
+
+          # flyway check `
+          #   -dryrun `
+
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate check report."
+          }
+
+          Write-Host "Generated check report"
+        } catch {
+          Write-Error $_.Exception.Message
+          exit 1
+        }
 
     - name: Generate Check Report
-      if: ${{ inputs.generate_check_report == 'true' && success() }}
+      if: ${{ inputs.action_check_report == 'true' && success() }}
       shell: pwsh
       continue-on-error: true
       run: |
         try {
           Write-Host "Generating check report..."
 
-          $cmd = @(
-            "flyway check",
-            "-dryrun",
-            "-changes",
-            "-drift",
-            "-environment=`"${{ inputs.environment }}`"",
-            "-user=`"${{ inputs.target_db_username }}`"",
-            "-password=`"${{ inputs.target_db_password }}`"",
-            "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
-            "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
-            "-check.buildEnvironment=`"${{ inputs.report_environment }}`"",
-            "-environments.${{ inputs.report_environment }}.user=`"${{ inputs.report_username }}`"",
-            "-environments.${{ inputs.report_environment }}.password=`"${{ inputs.report_password }}`"",
-            "-reportFilename=`"${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
-            "-publishResult=`"${{ inputs.publish_result }}`"",
-            "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
-            "-reportEnabled=`"${{ inputs.publish_result }}`"",
-            "${{ env.CUSTOM_PARAMS }}"
-          ) -join " "
+          # If debug is set
+          if( '${{ inputs.debug }}' -eq 'true' ) {
+            $cmd = @(
+              "flyway check",
+              "-changes",
+              "-drift",
+              "-environment=`"${{ inputs.environment }}`"",
+              "-user=`"${{ inputs.target_db_username }}`"",
+              "-password=`"${{ inputs.target_db_password }}`"",
+              "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
+              "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
+              "-check.buildEnvironment=`"${{ inputs.report_environment }}`"",
+              "-environments.${{ inputs.report_environment }}.user=`"${{ inputs.report_username }}`"",
+              "-environments.${{ inputs.report_environment }}.password=`"${{ inputs.report_password }}`"",
+              "-environments.${{ inputs.report_environment }}.provisioner=",
+              "-reportFilename=`"${{ GITHUB.WORKSPACE }}/reports/${{ env.DATABASE_NAME }}-Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
+              "-publishResult=`"${{ inputs.publish_result }}`"",
+              "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
+              "-reportEnabled=`"${{ inputs.publish_result }}`"",
+              "${{ env.CUSTOM_PARAMS }}"
+            ) -join " "
 
-          Write-Host "Command to be executed:"
-          Write-Host $cmd
+            Write-Host "Command to be executed:"
+            Write-Host $cmd
+          }
 
           flyway check `
-            -dryrun `
             -changes `
             -drift `
             -environment="${{ inputs.environment }}" `
@@ -237,10 +303,31 @@ runs:
         }
 
     - name: Migrate DB Build
+      if: ${{ inputs.action_migrate == 'true' && success() }}
       shell: pwsh
       run: |
         try {
           Write-Host "Migrating database build..."
+
+          # If debug is set
+          if( '${{ inputs.debug }}' -eq 'true' ) {
+            $cmd = @(
+              "flyway info",
+              "migrate info",
+              "-environment=`"${{ inputs.environment }}`"",
+              "-user=`"${{ inputs.target_db_username }}`"",
+              "-password=`"${{ inputs.target_db_password }}`"",
+              "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
+              "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
+              "-baselineOnMigrate=`"${{ inputs.baseline_on_migrate }}`"",
+              "-publishResult=`"${{ inputs.publish_result }}`"",
+              "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
+              "-reportEnabled=`"${{ inputs.publish_result }}`"",
+              "${{ inputs.custom_params }}"
+
+            Write-Host "Command to be executed:"
+            Write-Host $cmd
+          }
 
           flyway info `
             migrate info `
