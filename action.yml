@@ -264,15 +264,15 @@ runs:
               "-password=`"${{ inputs.target_db_password }}`"",
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
               "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
-              "-check.buildEnvironment=`"${{ inputs.check_environment }}`"",
-              "-environments.${{ inputs.check_environment }}.user=`"${{ inputs.check_database_username }}`"",
-              "-environments.${{ inputs.check_environment }}.password=`"${{ inputs.check_database_password }}`"",
-              "-environments.${{ inputs.check_environment }}.provisioner=`"clean`"",
-              "-reportFilename=`"${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
-              "-publishResult=`"${{ inputs.publish_result }}`"",
-              "-flywayServicePublish.publishReport=`"${{ inputs.publish_result }}`"",
-              "-reportEnabled=`"${{ inputs.publish_result }}`"",
-              "${{ env.CUSTOM_PARAMS }}"
+              "-check.buildEnvironment=${{ inputs.check_environment }}",
+              "-check.filterFile=${{ inputs.check_filter_file }}",
+              "-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}",
+              "-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}",
+              "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html",
+              "-publishResult=${{ inputs.publish_result }}",
+              "-flywayServicePublish.publishReport=${{ inputs.publish_result }}",
+              "-reportEnabled=${{ inputs.publish_result }}",
+              ${{ env.CUSTOM_PARAMS }}
             ) -join " "
 
             Write-Host "Command to be executed:"
