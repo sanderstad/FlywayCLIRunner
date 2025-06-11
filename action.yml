@@ -218,13 +218,13 @@ runs:
       shell: pwsh
       run: |
         try {
-          Write-Host "Generating check report..."
+          Write-Host "Running dry run..."
 
           # If debug is set
           if( '${{ inputs.debug }}' -eq 'true' ) {
             $cmd = @(
               "flyway check",
-              "-dryrun",
+              "-dryrun"
             ) -join " "
 
             Write-Host "Command to be executed:"
