@@ -109,7 +109,7 @@ runs:
           }
         }
 
-        if(('${{ inputs.check_filter_file }}' -eq ''_ -and '${{ inputs.action_check_report }}' -eq 'true')) {
+        if(('${{ inputs.check_filter_file }}' -eq '') -and ('${{ inputs.action_check_report }}' -eq 'true')) {
           $filterFilePath = "$($env:GITHUB_WORKSPACE)/Filter.scpf"
           Write-Host "Trying to find filter file at '$filterFilePath'"
           if (-Not (Test-Path -Path $filterFilePath)) {
