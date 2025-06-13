@@ -110,7 +110,9 @@ runs:
         }
 
         if('${{ inputs.check_filter_file }}' -eq '') {
-          ${{ inputs.check_filter_file }} = "${{ GITHUB.WORKSPACE }}/Filter.scpf"
+          "check_filter_file=${{ GITHUB.WORKSPACE }}/Filter.scpf" >> $GITHUB_ENV
+        } else {
+          "check_filter_file=${{ inputs.check_filter_file }}" >> $GITHUB_ENV
         }
 
     - name: 'Test if Flyway is already installed (Linux)'
@@ -265,7 +267,7 @@ runs:
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
               "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
               "`"-check.buildEnvironment=${{ inputs.check_environment }}`"",
-              #"`"-check.filterFile=${{ inputs.check_filter_file }}`"",
+              #"`"-check.filterFile=${{ env.check_filter_file }}`"",
               "`"-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}`"",
               "`"-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}`"",
               "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
