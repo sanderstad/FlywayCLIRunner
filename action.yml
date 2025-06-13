@@ -250,37 +250,6 @@ runs:
           Write-Error $_.Exception.Message
           exit 1
         }
-    # - name: Dry Run
-    #   if: ${{ inputs.action_dryrun == 'true' && success() }}
-    #   shell: pwsh
-    #   run: |
-    #     try {
-    #       Write-Host "Running dry run..."
-
-    #       # If debug is set
-    #       if( '${{ inputs.debug }}' -eq 'true' ) {
-    #         $cmd = @(
-    #           "flyway check",
-    #           "-dryrun"
-    #         ) -join " "
-
-    #         Write-Host "Command to be executed:"
-    #         Write-Host $cmd
-    #       }
-
-    #       # flyway check `
-    #       #   -dryrun `
-
-
-    #       if ($LASTEXITCODE -ne 0) {
-    #         throw "Failed to generate check report."
-    #       }
-
-    #       Write-Host "Generated check report"
-    #     } catch {
-    #       Write-Error $_.Exception.Message
-    #       exit 1
-    #     }
 
     - name: Generate Check Report
       if: ${{ inputs.action_check_report == 'true' && success() }}
