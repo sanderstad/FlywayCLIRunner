@@ -354,6 +354,7 @@ runs:
       with:
         name: flyway-reports-${{ inputs.environment }}
         path: ${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html
+        overwrite: true
 
     - name: Migrate DB Build
       if: ${{ inputs.action_migrate == 'true' && success() }}
