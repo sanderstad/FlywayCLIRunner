@@ -111,9 +111,9 @@ runs:
 
         if('${{ inputs.check_filter_file }}' -eq '') {
           Write-Host "No filter file provided, using default '$($env:GITHUB_WORKSPACE)/Filter.scpf'"
-          "check_filter_file=$($env:GITHUB_WORKSPACE)/Filter.scpf" >> $env:GITHUB_ENV
+          "check_filter_file=$($env:GITHUB_WORKSPACE)/Filter.scpf" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         } else {
-          "check_filter_file=${{ inputs.check_filter_file }}" >> $GITHUB_ENV
+          "check_filter_file=${{ inputs.check_filter_file }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         }
 
     - name: 'Test if Flyway is already installed (Linux)'
