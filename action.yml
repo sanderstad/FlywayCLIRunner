@@ -109,9 +109,16 @@ runs:
           }
         }
 
-        if('${{ inputs.check_filter_file }}' -eq '') {
-          Write-Host "No filter file provided, using default '$($env:GITHUB_WORKSPACE)/Filter.scpf'"
-          "check_filter_file=$($env:GITHUB_WORKSPACE)/Filter.scpf" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+        if(('${{ inputs.check_filter_file }}' -eq ''_ -and '${{ inputs.action_check_report }}' -eq 'true')) {
+          $filterFilePath = "$($env:GITHUB_WORKSPACE)/Filter.scpf"
+          Write-Host "Trying to find filter file at '$filterFilePath'"
+          if (-Not (Test-Path -Path $filterFilePath)) {
+            Write-Error "Filter file not found at '$filterFilePath'. Please provide a valid filter file path."
+            exit 1
+          } else {
+            Write-Host "Filter file found at '$filterFilePath'."
+            "check_filter_file=$filterFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          }
         } else {
           "check_filter_file=${{ inputs.check_filter_file }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         }
