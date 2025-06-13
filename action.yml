@@ -74,7 +74,7 @@ inputs:
   check_filter_file:
     description: 'The filter file to use for the check report'
     required: false
-    default: '${ GITHUB.WORKSPACE }/Filter.scpf'
+    default: ''
   custom_params:
     description: 'Custom parameters to pass to Flyway CLI'
     required: false
