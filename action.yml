@@ -114,7 +114,7 @@ runs:
         # Check if the right inputs are provided for generating check report
         if('${{ inputs.action_check_report}}' -eq 'true') {
 
-          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html"
+          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html"
           "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
           if('${{ inputs.check_environment}}' -eq '') {
@@ -307,7 +307,7 @@ runs:
               "`"-check.filterFile=$($env:check_filter_file)`"",
               "`"-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}`"",
               "`"-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}`"",
-              "`"-reportFilename=$($env:report_filePath)`"",
+              "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html`"",
               "`"-publishResult=${{ inputs.publish_result }}`"",
               "`"-flywayServicePublish.publishReport=${{ inputs.publish_result }}`"",
               "`"-reportEnabled=${{ inputs.publish_result }}`"",
@@ -332,7 +332,7 @@ runs:
             "-check.filterFile=$($env:check_filter_file)" `
             "-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}" `
             "-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}" `
-            "-reportFilename=$($env:report_filePath)" `
+            "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html" `
             "-publishResult=${{ inputs.publish_result }}" `
             "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
             "-reportEnabled=${{ inputs.publish_result }}" `
@@ -353,7 +353,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: flyway-reports-${{ inputs.environment }}
-        path: ${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html
+        path: ${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html
 
     - name: Migrate DB Build
       if: ${{ inputs.action_migrate == 'true' && success() }}
