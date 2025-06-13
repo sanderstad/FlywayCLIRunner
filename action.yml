@@ -290,6 +290,7 @@ runs:
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
             -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
             "-check.buildEnvironment=${{ inputs.check_environment }}" `
+            "-check.filterFile=${{ env.check_filter_file }}" `
             "-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}" `
             "-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}" `
             "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
