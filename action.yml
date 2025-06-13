@@ -109,6 +109,10 @@ runs:
           }
         }
 
+        if('${{ inputs.check_filter_file }}' -eq '') {
+          ${{ inputs.check_filter_file }} = "${{ GITHUB.WORKSPACE }}/Filter.scpf"
+        }
+
     - name: 'Test if Flyway is already installed (Linux)'
       if: runner.os == 'Linux'
       shell: bash
