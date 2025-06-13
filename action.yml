@@ -110,7 +110,8 @@ runs:
         }
 
         if('${{ inputs.check_filter_file }}' -eq '') {
-          "check_filter_file=${{ GITHUB.WORKSPACE }}/Filter.scpf" >> $GITHUB_ENV
+          Write-Host "No filter file provided, using default '$($env:GITHUB_WORKSPACE)/Filter.scpf'"
+          "check_filter_file=$($env:GITHUB_WORKSPACE)/Filter.scpf" >> $env:GITHUB_ENV
         } else {
           "check_filter_file=${{ inputs.check_filter_file }}" >> $GITHUB_ENV
         }
