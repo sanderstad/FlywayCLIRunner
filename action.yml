@@ -289,6 +289,7 @@ runs:
             $cmd = @(
               "flyway check",
               "-changes",
+              "-code",
               "-drift",
               "-dryrun",
               "-environment=`"${{ inputs.environment }}`"",
@@ -313,6 +314,7 @@ runs:
 
           flyway check `
             -changes `
+            -code `
             -drift `
             -dryrun `
             -environment="${{ inputs.environment }}" `
