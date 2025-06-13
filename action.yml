@@ -109,6 +109,23 @@ runs:
           }
         }
 
+        if('${{ inputs.action_check_report}}' -eq 'true') {
+          if('${{ inputs.check_environment}}' -eq '') {
+            Write-Error "Check Environment is required for generating check report"
+            exit 1
+          }
+
+          if('${{ inputs.check_database_username}}' -eq '') {
+            Write-Error "Check Database Username is required for generating check report"
+            exit 1
+          }
+
+          if('${{ inputs.check_database_password}}' -eq '') {
+            Write-Error "Check Database Password is required for generating check report"
+            exit 1
+          }
+        }
+
         if(('${{ inputs.check_filter_file }}' -eq '') -and ('${{ inputs.action_check_report }}' -eq 'true')) {
           $filterFilePath = "$($env:GITHUB_WORKSPACE)/Filter.scpf"
           Write-Host "Trying to find filter file at '$filterFilePath'"
