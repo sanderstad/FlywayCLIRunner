@@ -92,11 +92,13 @@ runs:
     - name: 'Check inputs'
       shell: pwsh
       run: |
+        # Check if required inputs are provided
         if (('${{ inputs.target_db_username }}' -ne '') -and ('${{ inputs.target_db_password }}' -eq '')) {
           Write-Error "Target DB Password is required"
           exit 1
         }
 
+        # Check if Flyway Email and Token are provided when authentication is enabled
         if('${{ inputs.authenticate_flyway}}' -eq 'true') {
           if('${{ inputs.flyway_email}}' -eq '') {
             Write-Error "Flyway Email is required for authentication"
@@ -109,6 +111,7 @@ runs:
           }
         }
 
+        # Check if the right inputs are provided for generating check report
         if('${{ inputs.action_check_report}}' -eq 'true') {
           if('${{ inputs.check_environment}}' -eq '') {
             Write-Error "Check Environment is required for generating check report"
@@ -126,6 +129,7 @@ runs:
           }
         }
 
+        # Check if the filter file is provided when generating check report
         if(('${{ inputs.check_filter_file }}' -eq '') -and ('${{ inputs.action_check_report }}' -eq 'true')) {
           $filterFilePath = "$($env:GITHUB_WORKSPACE)/Filter.scpf"
           Write-Host "Trying to find filter file at '$filterFilePath'"
