@@ -258,7 +258,7 @@ runs:
       run: |
         try {
           Write-Host "Generating check report..."
-
+          #               "`"-check.filterFile=$($env:check_filter_file)`"",
           # If debug is set
           if( '${{ inputs.debug }}' -eq 'true' ) {
             $cmd = @(
@@ -273,7 +273,6 @@ runs:
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
               "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
               "`"-check.buildEnvironment=${{ inputs.check_environment }}`"",
-              "`"-check.filterFile=$($env:check_filter_file)`"",
               "`"-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}`"",
               "`"-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}`"",
               "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html`"",
