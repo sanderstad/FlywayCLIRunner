@@ -290,6 +290,7 @@ runs:
               "flyway check",
               "-changes",
               "-drift",
+              "-dryrun",
               "-environment=`"${{ inputs.environment }}`"",
               "-user=`"${{ inputs.target_db_username }}`"",
               "-password=`"${{ inputs.target_db_password }}`"",
@@ -313,6 +314,7 @@ runs:
           flyway check `
             -changes `
             -drift `
+            -dryrun `
             -environment="${{ inputs.environment }}" `
             -user="${{ inputs.target_db_username }}" `
             -password="${{ inputs.target_db_password }}" `
