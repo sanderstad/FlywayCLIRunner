@@ -113,6 +113,10 @@ runs:
 
         # Check if the right inputs are provided for generating check report
         if('${{ inputs.action_check_report}}' -eq 'true') {
+
+          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html"
+          "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
           if('${{ inputs.check_environment}}' -eq '') {
             Write-Error "Check Environment is required for generating check report"
             exit 1
@@ -143,6 +147,8 @@ runs:
         } else {
           "check_filter_file=${{ inputs.check_filter_file }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         }
+
+        # Set the
 
     - name: 'Test if Flyway is already installed (Linux)'
       if: runner.os == 'Linux'
@@ -301,7 +307,7 @@ runs:
               "`"-check.filterFile=$($env:check_filter_file)`"",
               "`"-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}`"",
               "`"-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}`"",
-              "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html`"",
+              "`"-reportFilename=$($env:report_filePath)`"",
               "`"-publishResult=${{ inputs.publish_result }}`"",
               "`"-flywayServicePublish.publishReport=${{ inputs.publish_result }}`"",
               "`"-reportEnabled=${{ inputs.publish_result }}`"",
@@ -326,14 +332,14 @@ runs:
             "-check.filterFile=$($env:check_filter_file)" `
             "-environments.${{ inputs.check_environment }}.user=${{ inputs.check_database_username }}" `
             "-environments.${{ inputs.check_environment }}.password=${{ inputs.check_database_password }}" `
-            "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Run-${{ GITHUB.RUN_ID }}-${{ inputs.environment }}-Check-Report.html" `
+            "-reportFilename=$($env:report_filePath)" `
             "-publishResult=${{ inputs.publish_result }}" `
             "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
             "-reportEnabled=${{ inputs.publish_result }}" `
             ${{ env.CUSTOM_PARAMS }}
 
           if ($LASTEXITCODE -ne 0) {
-            throw "Failed to generate check report."
+            throw "Something went wrong generating the report."
           }
 
           Write-Host "Generated check report"
@@ -341,6 +347,13 @@ runs:
           Write-Error $_.Exception.Message
           exit 1
         }
+
+    - name: Publish Check Report as Artifact
+      if: ${{ inputs.action_check_report == 'true'}}
+      uses: actions/upload-artifact@v4
+      with:
+        name: flyway-reports-prod
+        path: ${{ env:report_filePath }}
 
     - name: Migrate DB Build
       if: ${{ inputs.action_migrate == 'true' && success() }}
