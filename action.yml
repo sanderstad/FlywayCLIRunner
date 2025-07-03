@@ -31,6 +31,10 @@ inputs:
     description: 'The token to use for Flyway CLI'
     required: false
     default: ''
+  target_db_url:
+    description: 'JDBC url to use to connect to the database'
+    required: true
+    default: ''
   target_db_username:
     description: 'The username to use for the target database'
     required: false
@@ -63,6 +67,10 @@ inputs:
     description: 'The environment to use for the report'
     required: false
     default: 'default'
+  check_database_url:
+    description: 'The JDBC url to use for the report database'
+    required: true
+    default: ''
   check_database_username:
     description: 'The username to use for the report database'
     required: false
@@ -336,6 +344,7 @@ runs:
               "flyway info",
               "migrate info",
               "-environment=`"${{ inputs.environment }}`"",
+              "-url=`"${{ inputs.target_db_url }}`"",
               "-user=`"${{ inputs.target_db_username }}`"",
               "-password=`"${{ inputs.target_db_password }}`"",
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
@@ -354,6 +363,7 @@ runs:
           flyway info `
             migrate info `
             -environment="${{ inputs.environment }}" `
+            -url="${{ inputs.target_db_url }}" `
             -user="${{ inputs.target_db_username }}" `
             -password="${{ inputs.target_db_password }}" `
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
