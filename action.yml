@@ -100,24 +100,24 @@ runs:
     - name: 'Check inputs'
       shell: pwsh
       run: |
-        # Check if required inputs are provided
-        if (('${{ inputs.target_db_username }}' -ne '') -and ('${{ inputs.target_db_password }}' -eq '')) {
-          Write-Error "Target DB Password is required"
-          exit 1
-        }
+        # # Check if required inputs are provided
+        # if (('${{ inputs.target_db_username }}' -ne '') -and ('${{ inputs.target_db_password }}' -eq '')) {
+        #   Write-Error "Target DB Password is required"
+        #   exit 1
+        # }
 
-        # Check if Flyway Email and Token are provided when authentication is enabled
-        if('${{ inputs.authenticate_flyway}}' -eq 'true') {
-          if('${{ inputs.flyway_email}}' -eq '') {
-            Write-Error "Flyway Email is required for authentication"
-            exit 1
-          }
+        # # Check if Flyway Email and Token are provided when authentication is enabled
+        # if('${{ inputs.authenticate_flyway}}' -eq 'true') {
+        #   if('${{ inputs.flyway_email}}' -eq '') {
+        #     Write-Error "Flyway Email is required for authentication"
+        #     exit 1
+        #   }
 
-          if('${{ inputs.flyway_token}}' -eq '') {
-            Write-Error "Flyway Token is required for authentication"
-            exit 1
-          }
-        }
+        #   if('${{ inputs.flyway_token}}' -eq '') {
+        #     Write-Error "Flyway Token is required for authentication"
+        #     exit 1
+        #   }
+        # }
 
         # # Check if the right inputs are provided for generating check report
         # if('${{ inputs.action_report}}' -eq 'true') {
