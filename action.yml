@@ -225,6 +225,7 @@ runs:
               "flyway info",
               "clean info",
               "-environment=`"${{ inputs.environment }}`"",
+              "-url=`"${{ inputs.target_db_url }}`"",
               "-user=`"${{ inputs.target_db_username }}`"",
               "-password=`"${{ inputs.target_db_password }}`"",
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
@@ -241,6 +242,7 @@ runs:
           flyway info `
             clean info `
             -environment="${{ inputs.environment }}" `
+            -url="${{ inputs.target_db_url }}" `
             -user="${{ inputs.target_db_username }}" `
             -password="${{ inputs.target_db_password }}" `
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
@@ -276,11 +278,13 @@ runs:
               "-drift",
               "-dryrun",
               "-environment=`"${{ inputs.environment }}`"",
+              "-url=`"${{ inputs.target_db_url }}`"",
               "-user=`"${{ inputs.target_db_username }}`"",
               "-password=`"${{ inputs.target_db_password }}`"",
               "-configFiles=`"${{ GITHUB.WORKSPACE }}/flyway.toml`"",
               "-locations=`"filesystem:${{ GITHUB.WORKSPACE }}/migrations`"",
               "`"-check.buildEnvironment=${{ inputs.report_environment }}`"",
+              "`"-environments.${{ inputs.report_environment }}.url=${{ inputs.report_db_url }}`"",
               "`"-environments.${{ inputs.report_environment }}.user=${{ inputs.report_db_username }}`"",
               "`"-environments.${{ inputs.report_environment }}.password=${{ inputs.report_db_password }}`"",
               "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html`"",
@@ -300,11 +304,13 @@ runs:
             -drift `
             -dryrun `
             -environment="${{ inputs.environment }}" `
+            -url="${{ inputs.target_db_url }}" `
             -user="${{ inputs.target_db_username }}" `
             -password="${{ inputs.target_db_password }}" `
             -configFiles="${{ GITHUB.WORKSPACE }}/flyway.toml" `
             -locations="filesystem:${{ GITHUB.WORKSPACE }}/migrations" `
             "-check.buildEnvironment=${{ inputs.report_environment }}" `
+            "-environments.${{ inputs.report_environment }}.url=${{ inputs.report_db_url }}" `
             "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_db_username }}" `
             "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_db_password }}" `
             "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html" `
