@@ -156,6 +156,15 @@ runs:
         #   "check_filter_file=${{ inputs.check_filter_file }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         # }
 
+        $jdbcUrl = "${{ inputs.target_db_url }}"
+        if ($jdbcUrl -match "databaseName=([^;]+)") {
+          $databaseName = $matches[1]
+          "database_name=$databaseName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+        } else {
+          Write-Error "Invalid JDBC URL format. Please ensure it contains 'databaseName='."
+          exit 1
+        }
+
     - name: 'Test if Flyway is already installed (Linux)'
       if: runner.os == 'Linux'
       shell: bash
@@ -285,7 +294,7 @@ runs:
               "`"-environments.${{ inputs.report_environment }}.url=${{ inputs.report_db_url }}`"",
               "`"-environments.${{ inputs.report_environment }}.user=${{ inputs.report_db_username }}`"",
               "`"-environments.${{ inputs.report_environment }}.password=${{ inputs.report_db_password }}`"",
-              "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html`"",
+              "`"-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}-$($env:database_name).html`"",
               "`"-publishResult=${{ inputs.publish_result }}`"",
               "`"-flywayServicePublish.publishReport=${{ inputs.publish_result }}`"",
               "`"-reportEnabled=${{ inputs.publish_result }}`"",
@@ -311,7 +320,7 @@ runs:
             "-environments.${{ inputs.report_environment }}.url=${{ inputs.report_db_url }}" `
             "-environments.${{ inputs.report_environment }}.user=${{ inputs.report_db_username }}" `
             "-environments.${{ inputs.report_environment }}.password=${{ inputs.report_db_password }}" `
-            "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html" `
+            "-reportFilename=${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}-$($env:database_name).html" `
             "-publishResult=${{ inputs.publish_result }}" `
             "-flywayServicePublish.publishReport=${{ inputs.publish_result }}" `
             "-reportEnabled=${{ inputs.publish_result }}" `
@@ -332,7 +341,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: flyway-reports-${{ inputs.environment }}
-        path: ${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html
+        path: ${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}-$($env:database_name).html
         overwrite: true
 
     - name: Migrate DB Build
