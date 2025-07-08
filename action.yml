@@ -100,13 +100,16 @@ runs:
     - name: 'Check inputs'
       shell: pwsh
       run: |
-        # # Check if required inputs are provided
+        # Declare variables
+        $databaseName = ""
+
+        # Check if required inputs are provided
         if (("${{ inputs.target_db_username }}" -ne "") -and ("${{ inputs.target_db_password }}" -eq "")) {
           Write-Error "Target DB Password is required"
           exit 1
         }
 
-        # # Check if Flyway Email and Token are provided when authentication is enabled
+        # Check if Flyway Email and Token are provided when authentication is enabled
         if("${{ inputs.authenticate_flyway}}" -eq "true") {
           if("${{ inputs.flyway_email}}" -eq "") {
             Write-Error "Flyway Email is required for authentication"
@@ -119,11 +122,28 @@ runs:
           }
         }
 
+        # Check the target database URL format
+        if ("${{ inputs.target_db_url }}" -eq "") {
+          Write-Error "Target DB URL is required"
+          exit 1
+        } elseif (!("${{ inputs.target_db_url }}" -match "^jdbc:[a-zA-Z0-9]+://")) {
+          Write-Error "Invalid Target DB URL format. Please ensure it starts with 'jdbc:'"
+          exit 1
+        } else {
+          Write-Host "Target DB URL is valid"
+
+          $jdbcUrl = "${{ inputs.target_db_url }}"
+          if ($jdbcUrl -match "databaseName=([^;]+)") {
+            $databaseName = $matches[1]
+            "database_name=$databaseName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          } else {
+            Write-Error "Invalid JDBC URL format. Please ensure it contains 'databaseName='."
+            exit 1
+          }
+        }
+
         # # Check if the right inputs are provided for generating check report
         if("${{ inputs.action_report}}" -eq "true") {
-
-          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html"
-          "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
           if("${{ inputs.report_environment}}" -eq "") {
             Write-Error "Check Environment is required for generating check report"
@@ -139,6 +159,9 @@ runs:
             Write-Error "Check Database Password is required for generating check report"
             exit 1
           }
+
+          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}-$($databaseName).html"
+          "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         }
 
         # # Check if the filter file is provided when generating check report
@@ -156,14 +179,7 @@ runs:
         #   "check_filter_file=${{ inputs.check_filter_file }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
         # }
 
-        $jdbcUrl = "${{ inputs.target_db_url }}"
-        if ($jdbcUrl -match "databaseName=([^;]+)") {
-          $databaseName = $matches[1]
-          "database_name=$databaseName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-        } else {
-          Write-Error "Invalid JDBC URL format. Please ensure it contains 'databaseName='."
-          exit 1
-        }
+
 
     - name: 'Test if Flyway is already installed (Linux)'
       if: runner.os == 'Linux'
