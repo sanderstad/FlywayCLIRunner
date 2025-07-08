@@ -120,26 +120,26 @@ runs:
         }
 
         # # Check if the right inputs are provided for generating check report
-        # if('${{ inputs.action_report}}' -eq 'true') {
+        if("${{ inputs.action_report}}" -eq "true") {
 
-        #   $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html"
-        #   "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          $reportFilePath = "${{ GITHUB.WORKSPACE }}/reports/Check-Report-${{ inputs.environment }}.html"
+          "report_filePath=$reportFilePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-        #   if('${{ inputs.report_environment}}' -eq '') {
-        #     Write-Error "Check Environment is required for generating check report"
-        #     exit 1
-        #   }
+          if("${{ inputs.report_environment}}" -eq "") {
+            Write-Error "Check Environment is required for generating check report"
+            exit 1
+          }
 
-        #   if('${{ inputs.report_db_username}}' -eq '') {
-        #     Write-Error "Check Database Username is required for generating check report"
-        #     exit 1
-        #   }
+          if("${{ inputs.report_db_username}}" -eq "") {
+            Write-Error "Check Database Username is required for generating check report"
+            exit 1
+          }
 
-        #   if('${{ inputs.report_db_password}}' -eq '') {
-        #     Write-Error "Check Database Password is required for generating check report"
-        #     exit 1
-        #   }
-        # }
+          if("${{ inputs.report_db_password}}" -eq "") {
+            Write-Error "Check Database Password is required for generating check report"
+            exit 1
+          }
+        }
 
         # # Check if the filter file is provided when generating check report
         # if(('${{ inputs.check_filter_file }}' -eq '') -and ('${{ inputs.action_report }}' -eq 'true')) {
